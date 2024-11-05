@@ -1,0 +1,17 @@
+<resources>
+    <!-- Tema padrão do aplicativo -->
+    <style name="Theme.ConvertBip" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryDark">@color/purple_700</item>
+        <item name="colorAccent">@color/teal_200</item>
+    </style>
+
+    <!-- Tema para o QR Code Scanner Activity -->
+    <style name="Theme.AppCompat" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customizações para a atividade de QR Code -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryDark">@color/purple_700</item>
+        <item name="colorAccent">@color/teal_200</item>
+    </style>
+</resources>

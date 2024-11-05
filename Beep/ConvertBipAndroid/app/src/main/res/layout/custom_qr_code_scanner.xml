@@ -1,0 +1,36 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.convertbip.ui.QRCodeScannerActivity">
+
+    <!-- O ViewFinder para escanear o QR Code -->
+    <SurfaceView
+        android:id="@+id/qr_code_camera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
+
+    <!-- O retângulo de foco para o QR Code -->
+    <View
+        android:id="@+id/qr_code_overlay"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:background="@drawable/rect_border"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Escurecimento do fundo fora do retângulo -->
+    <View
+        android:id="@+id/background_dim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:alpha="0.5"
+        android:layout_gravity="center" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
