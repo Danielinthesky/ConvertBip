@@ -19,8 +19,6 @@ import com.example.convertbip.bluetooth.GerenciadorBluetooth
 import com.example.convertbip.qrcode.ManipuladorQRCode
 import com.example.convertbip.vibration.GerenciadorVibracao
 import com.example.convertbip.vlibras.GerenciadorVLibras
-
-// Certifique-se de que você criou esses arquivos no seu projeto.
 import com.example.convertbip.ui.screens.SettingsScreen
 import com.example.convertbip.ui.screens.MainScreen
 

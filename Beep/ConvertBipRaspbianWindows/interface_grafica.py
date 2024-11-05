@@ -9,6 +9,11 @@ from bluetooth_handler import enviar_bips_para_celular, listar_dispositivos_pare
 from PyQt5.QtCore import QTimer
 import threading
 from PyQt5.QtWebEngineWidgets import QWebEngineView  # Importar para exibir VLibras
+from funcionalidades import gerar_qr_code
+import tkinter as tk
+from tkinter import Button, Label
+from funcionalidades import abrir_janela_configuracoes
+
 
 # Configurações de áudio
 fs = 44100
@@ -73,6 +78,11 @@ layout = QtWidgets.QHBoxLayout(central_widget)
 # Barra de menu com opções de configuração
 menu_bar = win.menuBar()
 config_menu = menu_bar.addMenu('Configurações')
+# Opção para abrir a janela de configurações com QR Code
+abrir_config_action = QtWidgets.QAction('Gerar QR Code para Conexão', win)
+abrir_config_action.triggered.connect(abrir_janela_configuracoes)
+config_menu.addAction(abrir_config_action)
+
 
 # Opção para alternar a exibição das escalas (grade)
 toggle_scale_action = QtWidgets.QAction('Alternar Exibição das Escalas', win)
@@ -101,6 +111,8 @@ def toggle_scales(checked):
 # Conectar a ação de alternar escalas ao menu de configuração
 toggle_scale_action.triggered.connect(lambda: toggle_scales(toggle_scale_action.isChecked()))
 config_menu.addAction(toggle_scale_action)
+
+
 
 # Painel esquerdo
 panel_widget = QtWidgets.QWidget()

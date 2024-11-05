@@ -1,4 +1,5 @@
 package com.example.convertbip.bluetooth
+
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -64,6 +65,15 @@ class GerenciadorBluetooth(private val contexto: Context) {
             else -> {
                 Toast.makeText(contexto, "Comando desconhecido: $comando", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    // Adicionando a função verificarEstadoBluetooth
+    fun verificarEstadoBluetooth(): String {
+        return when {
+            adaptadorBluetooth == null -> "Bluetooth não é suportado neste dispositivo."
+            !adaptadorBluetooth.isEnabled -> "Por favor, ative o Bluetooth."
+            else -> "Bluetooth está ativado e pronto para uso."
         }
     }
 }
