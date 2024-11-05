@@ -1,15 +1,32 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>VLibras</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLibras Avatar</title>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-    <script>
-        new window.VLibras.Widget('https://vlibras.gov.br/app');
-    </script>
 </head>
 <body>
-    <h1>Tradutor VLibras</h1>
-    <p>Este é um exemplo de integração do VLibras.</p>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new window.VLibras.Widget('https://vlibras.gov.br/app');
+    
+            // Automatiza o clique no botão de acessibilidade VLibras
+            setTimeout(function() {
+                let vlibrasButton = document.querySelector('.enabled [vw-access-button]');
+                if (vlibrasButton) {
+                    vlibrasButton.click();  // Simula um clique no botão de acessibilidade
+                }
+            }, 1000); // Tempo de espera para garantir que o botão esteja carregado
+        });
+    </script>
+    
+    
 </body>
 </html>
