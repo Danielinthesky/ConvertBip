@@ -33,29 +33,44 @@
         android:theme="@style/Theme.ConvertBip"
         tools:targetApi="31">
 
-        <activity android:name=".ui.QRCodeScannerActivity"
+        <!-- Atividade para o leitor de QR Code (caso necessário) -->
+        <activity
+            android:name=".ui.QRCodeScannerActivity"
             android:theme="@style/Theme.AppCompat"
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize" />
 
+        <!-- BroadcastReceiver para receber comandos de vibração via ADB -->
+        <receiver android:name=".RecebedorComandoUSB" android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.convertbip.VIBRATE" />
+            </intent-filter>
+        </receiver>
 
+        <!-- Atividade principal do app -->
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.ConvertBip">
-
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Atividade para VLibras se necessário -->
-        <activity
-            android:name=".ui.VLibrasActivity"
-            android:exported="true"
-            android:theme="@style/Theme.ConvertBip" />
+        <!--
+<service android:name=".VibrationService" android:exported="false" />
+-->
+
+
+        <!--
+<receiver android:name=".RecebedorComandoUSB" android:exported="true">
+    <intent-filter>
+        <action android:name="com.example.convertbip.VIBRATE" />
+    </intent-filter>
+</receiver>
+-->
+
     </application>
 
 </manifest>
