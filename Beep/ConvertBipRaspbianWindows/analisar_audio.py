@@ -14,25 +14,23 @@ def apply_bandpass_filter(data, sr, lowcut=1000, highcut=2000):
 def detect_beep_patterns(beep_durations):
     patterns = []
     diagnoses = []
-
     i = 0
     while i < len(beep_durations):
         if beep_durations[i] > 0.4:  # Bip longo
             if i + 3 < len(beep_durations) and all(d < 0.3 for d in beep_durations[i+1:i+4]):
-                patterns.append('1 bip longo seguido de 3 bips curtos')
+                patterns.append('Problema de Vídeo')
                 diagnoses.append('Problema no vídeo')
-                i += 4  # Pular os próximos 3 bips curtos
+                i += 4
+            elif i + 2 < len(beep_durations) and all(d < 0.3 for d in beep_durations[i+1:i+3]):
+                patterns.append('Erro de RAM')
+                diagnoses.append('Problema na RAM')
+                i += 3
             else:
                 i += 1
-        elif beep_durations[i] <= 0.2:
-            if len(beep_durations) == 1:
-                patterns.append('PC Energizado')
-                diagnoses.append('Bip curto isolado')
-            i += 1
         else:
             i += 1
-            
     return patterns, diagnoses
+
 
 def analyze_beeps(audio_file):
     audio_data, sr = librosa.load(audio_file, sr=None)

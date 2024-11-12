@@ -71,9 +71,7 @@ graph_panel = QtWidgets.QWidget()
 layout.addWidget(graph_panel)
 graph_layout = QtWidgets.QGridLayout(graph_panel)
 
-# Indicador de status
-status_label = QtWidgets.QLabel("Aguardando início...")
-layout.addWidget(status_label)
+
 
 # Plots
 plot_layout = QtWidgets.QGridLayout()
@@ -82,6 +80,7 @@ layout.addLayout(plot_layout)
 # Indicador de status da análise
 status_label = QtWidgets.QLabel("Analisando...")
 layout.addWidget(status_label)
+print("Status Label Atual:", status_label.text())
 
 # Barra de menu com opções de configuração
 menu_bar = win.menuBar()
@@ -101,40 +100,8 @@ config_menu.addAction(show_waveform_action)
 config_menu.addAction(show_fft_action)
 config_menu.addAction(show_envelope_action)
 
-# Função para reposicionar gráficos com base nas seleções
-def update_graphics_layout():
-    for i in reversed(range(graph_layout.count())):
-        graph_layout.itemAt(i).widget().setParent(None)
 
-    graphs_to_show = [spectrogram_plot]  # Default spectrogram
-    if show_waveform_action.isChecked():
-        graphs_to_show.append(waveform_plot)
-    if show_fft_action.isChecked():
-        graphs_to_show.append(fft_plot)
-    if show_envelope_action.isChecked():
-        graphs_to_show.append(envelope_plot)
 
-    # Dynamically arrange graphs within the panel based on the number of active graphs
-    num_graphs = len(graphs_to_show)
-    if num_graphs == 1:
-        graph_layout.addWidget(graphs_to_show[0], 0, 0, 2, 2)
-    elif num_graphs == 2:
-        graph_layout.addWidget(graphs_to_show[0], 0, 0, 2, 1)
-        graph_layout.addWidget(graphs_to_show[1], 0, 1, 2, 1)
-    elif num_graphs == 3:
-        graph_layout.addWidget(graphs_to_show[0], 0, 0)
-        graph_layout.addWidget(graphs_to_show[1], 0, 1)
-        graph_layout.addWidget(graphs_to_show[2], 1, 0, 1, 2)
-    else:
-        graph_layout.addWidget(graphs_to_show[0], 0, 0)
-        graph_layout.addWidget(graphs_to_show[1], 0, 1)
-        graph_layout.addWidget(graphs_to_show[2], 1, 0)
-        graph_layout.addWidget(graphs_to_show[3], 1, 1)
-
-# Conectar as ações ao sistema de atualização de gráficos
-show_waveform_action.toggled.connect(update_graphics_layout)
-show_fft_action.toggled.connect(update_graphics_layout)
-show_envelope_action.toggled.connect(update_graphics_layout)
 
 # Layout de gráficos
 plot_layout = QtWidgets.QGridLayout()
@@ -191,6 +158,10 @@ spectrogram_plot.addItem(spectrogram_image)
 
 spectrogram_data = np.zeros((chunk // 2, n_windows))
 
+# Definição de limites para a detecção visual
+min_largura_bip_curto = 3
+max_largura_bip_curto = 6
+min_largura_bip_longo = 7
 
 
 # Função para análise dos bips e detecção dos padrões
@@ -219,6 +190,16 @@ def detectar_padroes_bips(frequencia_dominante=None):
 
     recent_patterns.extend(bip_types)
 
+     #Atualizar o status_label com o padrão detectado
+
+    if "Problema de Vídeo" in recent_patterns:
+        status_label.setText("Padrão Detectado: Problema de vídeo")
+    elif "Erro de RAM" in recent_patterns:
+        status_label.setText("Padrão Detectado: Erro de RAM")
+    else:
+        status_label.setText("Analisando...")
+
+
     # Imprimir o tipo de bip detectado
     print("Tipos de bip detectados na janela atual:", bip_types)
 
@@ -240,6 +221,63 @@ def processar_audio():
     detectar_padroes_bips(dominant_freq)
 
 
+# Função para detectar bips visualmente no espectrograma
+def detectar_bips_visual():
+    global spectrogram_data
+    visual_bip_types = []
+
+    # Iterar pela largura do espectrograma para verificar colunas com picos de intensidade
+    for col in range(spectrogram_data.shape[1]):
+        coluna = spectrogram_data[:, col]
+
+        # Detecta se a coluna tem "bip" ativo com valor significativo
+        threshold = np.max(coluna) * 0.5
+        indices_ativos = np.where(coluna > threshold)[0]
+
+        if len(indices_ativos) > 0:
+            largura = len(indices_ativos)
+
+            # Classificação da largura da listra como bip curto ou longo
+            if min_largura_bip_curto <= largura <= max_largura_bip_curto:
+                visual_bip_types.append("Bip curto")
+            elif largura >= min_largura_bip_longo:
+                visual_bip_types.append("Bip longo")
+            else:
+                visual_bip_types.append("Ruído/Desconhecido")
+
+    # Analisar padrões detectados visualmente
+    analisar_padroes_visuais(visual_bip_types)
+
+
+
+    # Função para analisar os padrões de bips visuais
+def analisar_padroes_visuais(visual_bip_types):
+    recent_patterns.extend(visual_bip_types)
+
+    # Detectar o padrão de "Problema de RAM" e "Problema de Vídeo"
+    if recent_patterns.count("Bip longo") >= 1 and recent_patterns.count("Bip curto") >= 2:
+        if list(recent_patterns)[-3:] == ["Bip longo", "Bip curto", "Bip curto"]:
+            status_label.setText("Padrão Detectado: Problema de RAM (1 longo, 2 curtos)")
+        elif list(recent_patterns)[-4:] == ["Bip longo", "Bip curto", "Bip curto", "Bip curto"]:
+            status_label.setText("Padrão Detectado: Problema de Vídeo (1 longo, 3 curtos)")
+    else:
+        status_label.setText("Analisando...")
+
+# Modificando a função de atualização do espectrograma para incluir a detecção visual
+
+def update_spectrograma():
+    global spectrogram_data
+    audio_data = capturar_audio()
+    fft_spectrum = np.abs(np.fft.fft(audio_data))
+
+    spectrogram_data[:, 1:] = spectrogram_data[:, :-1]
+    spectrogram_data[:, 0] = fft_spectrum[:chunk // 2]
+
+    spectrogram_image.setImage(np.flipud(spectrogram_data.T), autoRange=False)
+
+    # Detectar bips visuais no espectrograma atualizado
+    detectar_bips_visual()
+
 
 # Timers para atualizar cada gráfico individualmente
 timer_waveform = QtCore.QTimer()
@@ -260,6 +298,11 @@ timer_fft.setInterval(200)          # Ajuste conforme desejado
 timer_envelope.setInterval(200)     # Ajuste conforme desejado
 timer_spectrogram.setInterval(100)  # Ajuste conforme desejado
 
+# Timer específico para a detecção de padrões
+timer_deteccao_padroes = QtCore.QTimer()
+timer_deteccao_padroes.timeout.connect(lambda: detectar_padroes_bips())
+timer_deteccao_padroes.setInterval(50)  # Intervalo de 200ms para verificação
+
 # Funções de atualização individuais
 def update_waveform():
     audio_data = capturar_audio()
@@ -277,16 +320,22 @@ def update_envelope():
     envelope_curve.setData(envelope_data)
 
 def update_spectrograma():
-    audio_data = capturar_audio()
-    fft_spectrum = np.abs(np.fft.fft(audio_data))
-    global spectrogram_data
+    global spectrogram_data  # Certifique-se de que spectrogram_data está acessível
+    audio_data = capturar_audio()  # Captura uma nova amostra de áudio
+    fft_spectrum = np.abs(np.fft.fft(audio_data))  # Calcula o espectro FFT do áudio
+
+    # Atualizar os dados do espectrograma com as novas informações
     spectrogram_data[:, 1:] = spectrogram_data[:, :-1]
     spectrogram_data[:, 0] = fft_spectrum[:chunk // 2]
+
+    # Atualizar a imagem do espectrograma no gráfico
     spectrogram_image.setImage(np.flipud(spectrogram_data.T), autoRange=False)
 
+    
+# Lista para armazenar os itens adicionados ao espectrograma
 
-# Inicializando o layout
-update_graphics_layout()    
+
+  
 
 # Botões para controle de captura
 start_button = QtWidgets.QPushButton("Iniciar Captura")
@@ -294,8 +343,8 @@ stop_button = QtWidgets.QPushButton("Parar Captura")
 layout.addWidget(start_button)
 layout.addWidget(stop_button)
 
-start_button.clicked.connect(lambda: [timer_waveform.start(), timer_fft.start(), timer_envelope.start(), timer_spectrogram.start()])
-stop_button.clicked.connect(lambda: [timer_waveform.stop(), timer_fft.stop(), timer_envelope.stop(), timer_spectrogram.stop()])
+start_button.clicked.connect(lambda: [timer_waveform.start(), timer_fft.start(), timer_envelope.start(), timer_spectrogram.start(), timer_deteccao_padroes.start()] )
+stop_button.clicked.connect(lambda: [timer_waveform.stop(), timer_fft.stop(), timer_envelope.stop(), timer_spectrogram.stop(), timer_deteccao_padroes.stop()] )
 
 
 # Botões Bluetooth e Vibração

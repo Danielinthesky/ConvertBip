@@ -6,15 +6,13 @@ from chatgptopenai import consultar_chatgpt  # Integração com ChatGPT
 from bluetooth_handler import enviar_bips_para_celular  # Integração com Bluetooth
 
 def processar_bips(resultado):
-    """
-    Função para processar os bips identificados e enviar o padrão correspondente via Bluetooth.
-    """
-    if resultado == "video_problem":
+    if resultado == "Problema de Vídeo":
         padrao = "long,short,short,short"
         enviar_bips_para_celular(padrao)
-    elif resultado == "ram_problem":
+    elif resultado == "Erro de RAM":
         padrao = "long,short,short"
         enviar_bips_para_celular(padrao)
+
 
 def main():
     while True:
